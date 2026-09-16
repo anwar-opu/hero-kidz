@@ -1,0 +1,18 @@
+"use client";
+import Link from "next/link";
+import React from "react";
+import { TbError404 } from "react-icons/tb";
+
+const error = () => {
+  return (
+    <div className="flex flex-col  justify-center items-center gap-5">
+      <TbError404 size={100} className="text-primary" />
+      <h2 className="text-4xl text-center font-bold">Something went wrong</h2>
+      <Link href={"/"} className="btn btn-primary ">
+        Go to Home
+      </Link>
+    </div>
+  );
+};
+
+export default error;
