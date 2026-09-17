@@ -1,11 +1,17 @@
 "use client";
 
 import { postUser } from "@/actions/server/auth";
-import { useRouter } from "next/navigation";
+import SocialButton from "@/components/buttons/SocialButton";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import Swal from "sweetalert2";
 
 const RegisterPage = () => {
   const router = useRouter();
+
+  const params = useSearchParams();
+  const redirectTo = params.get("redirect") || "/login";
+
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -28,8 +34,8 @@ const RegisterPage = () => {
     console.log("Result:", result);
 
     if (result?.success) {
-      alert("Successful, please login");
-      router.push("/login");
+      Swal.fire("success", "Welcome to Hero Kidz", "success");
+      router.push(redirectTo);
     }
   };
 
@@ -121,9 +127,7 @@ const RegisterPage = () => {
           <div className="divider">OR</div>
 
           {/* Google */}
-          <button className="btn btn-outline w-full">
-            Continue with Google
-          </button>
+          <SocialButton></SocialButton>
 
           <p className="text-center mt-4">
             Already have an account?{" "}

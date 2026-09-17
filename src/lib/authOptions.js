@@ -1,4 +1,7 @@
+import { loginUser } from "@/actions/server/auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
+import { collections, dbConnect } from "./dbConnect";
 
 export const authOptions = {
   providers: [
@@ -6,22 +9,62 @@ export const authOptions = {
       name: "Credentials",
 
       credentials: {
-        email: {
-          label: "Email",
-          type: "email",
-        },
-        password: {
-          label: "Password",
-          type: "password",
-        },
+        // email: {
+        //   label: "Email",
+        //   type: "email",
+        // },
+        // password: {
+        //   label: "Password",
+        //   type: "password",
+        // },
       },
 
-      async authorize(credentials) {
-        console.log("AUTHORIZE CALLED");
-        console.log("Credentials:", credentials);
+      async authorize(credentials, req) {
+        const user = await loginUser(credentials);
 
-        return null;
+        return user;
       },
     }),
+
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
   ],
+  callbacks: {
+    async signIn({ user, account, profile, email, credentials }) {
+      console.log({ user, account, profile, email, credentials });
+
+      const isExist = await dbConnect(collections.USERS).findOne({
+        email: user.email,
+        providerId: account?.provider,
+      });
+
+      if (isExist) {
+        return true;
+      }
+
+      const newUser = {
+        providerId: account?.provider,
+        name: user.name,
+        email: user.email,
+        image: user.image,
+        role: "user",
+      };
+
+      const result = await dbConnect(collections.USERS).insertOne(newUser);
+      console.log(result);
+
+      return result.acknowledged;
+    },
+    // async redirect({ url, baseUrl }) {
+    //   return baseUrl;
+    // },
+    // async session({ session, token, user }) {
+    //   return session;
+    // },
+    // async jwt({ token, user, account, profile, isNewUser }) {
+    //   return token;
+    // },
+  },
 };

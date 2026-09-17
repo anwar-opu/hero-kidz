@@ -1,4 +1,3 @@
-
 "use server";
 
 import { collections, dbConnect } from "@/lib/dbConnect";
@@ -8,7 +7,7 @@ export const postUser = async (payload) => {
   const { email, password, name } = payload;
 
   // Check payload
-  if (!email || !password || !name) {
+  if (!email || !password) {
     return {
       success: false,
       message: "Name, email and password are required",
@@ -51,3 +50,22 @@ export const postUser = async (payload) => {
   };
 };
 
+export const loginUser = async (payload) => {
+  const { email, password } = payload;
+
+  if (!email || !password) return null;
+  
+  // Check if user already exists
+  const user = await dbConnect(collections.USERS).findOne({ email });
+  if (!user) {
+    return null;
+  }
+
+  const isMatched = await bcrypt.compare(password, user.password);
+
+  if (isMatched) {
+    return user;
+  } else {
+    return null;
+  }
+};

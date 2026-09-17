@@ -1,10 +1,15 @@
-
 "use client";
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Swal from "sweetalert2";
+import SocialButton from "@/components/buttons/SocialButton";
 
 const LoginPage = () => {
+  const params = useSearchParams();
+  const callBack = params.get("callbackUrl") || "/";
+
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -24,15 +29,24 @@ const LoginPage = () => {
       email: form.email,
       password: form.password,
       redirect: false,
+      callbackUrl: params.get("callbackUrl") || "/",
     });
 
-    console.log("Login result:", result);
+    // console.log("Login result:", result);
 
     if (result?.ok) {
-      alert("Login successful");
-      // router.push("/");
+      Swal.fire({
+        title: "Welcome to kidz Hero",
+        icon: "success",
+        draggable: true,
+      });
     } else {
-      alert("Invalid email or password");
+      Swal.fire({
+        title: "Error!",
+        text: "Email and password not matched",
+        icon: "error",
+        confirmButtonText: "Ok",
+      });
     }
   };
 
@@ -40,9 +54,7 @@ const LoginPage = () => {
     <main className="min-h-screen bg-base-200 flex items-center justify-center px-4">
       <div className="card w-full max-w-md bg-base-100 shadow-xl">
         <div className="card-body">
-          <h1 className="text-3xl font-bold text-center">
-            Welcome Back
-          </h1>
+          <h1 className="text-3xl font-bold text-center">Welcome Back</h1>
 
           <p className="text-center text-base-content/60 mb-4">
             Login to your Hero Kidz account
@@ -86,23 +98,15 @@ const LoginPage = () => {
             {/* Remember / Forgot */}
             <div className="flex items-center justify-between">
               <label className="label cursor-pointer gap-2">
-                <input
-                  type="checkbox"
-                  className="checkbox checkbox-sm"
-                />
+                <input type="checkbox" className="checkbox checkbox-sm" />
                 <span className="label-text">Remember me</span>
               </label>
 
-              <a className="link link-primary text-sm">
-                Forgot password?
-              </a>
+              <a className="link link-primary text-sm">Forgot password?</a>
             </div>
 
             {/* Login */}
-            <button
-              type="submit"
-              className="btn btn-primary w-full"
-            >
+            <button type="submit" className="btn btn-primary w-full">
               Login
             </button>
           </form>
@@ -110,14 +114,12 @@ const LoginPage = () => {
           <div className="divider">OR</div>
 
           {/* Google */}
-          <button className="btn btn-outline w-full">
-            Continue with Google
-          </button>
+          <SocialButton></SocialButton>
 
           <p className="text-center mt-4">
             Do not have an account?{" "}
             <a
-              href="/register"
+              href={`/register?callbackUrl=${callBack}`}
               className="link link-primary font-semibold"
             >
               Register
@@ -130,4 +132,3 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
-
